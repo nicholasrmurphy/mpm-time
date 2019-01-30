@@ -1,0 +1,16 @@
+<h1>New Client</h1>
+<form action="/users/newClient" method="POST">
+  <div class="form-group">
+    <label>Name</label>
+    <input
+    class="form-control"
+    id="name"
+    name="name"
+    placeholder="Smith Family Inc."
+    value="<%= typeof name != 'undefined' ? name : '' %>"
+    />
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">
+    Register Client
+  </button>
+</form>

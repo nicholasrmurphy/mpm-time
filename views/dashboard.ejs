@@ -1,3 +1,11 @@
 <h1 class="mt-4">Dashboard</h1>
 <p class="lead mb-3">Welcome <%= name %></p>
+<% include ./partials/messages %>
+<div class="list-group">
+  <a href="/users/newEntry" class="list-group-item list-group-item-action">Create a Work Entry</a>
+  <a href="/users/newEmployee" class="list-group-item list-group-item-action">Add an Employee</a>
+  <a href="/users/newClient" class="list-group-item list-group-item-action">Add a Client</a>
+  <a href="/users/newBuilding" class="list-group-item list-group-item-action">Add a Building</a>
+</div>
+<br><br>
 <a href="/users/logout" class="btn btn-secondary">Logout</a>

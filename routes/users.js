@@ -4,9 +4,44 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 //User model
 const User = require('../models/User');
+const Client = require('../models/Client');
 
 //Login Page
 router.get('/login', (req,res) => res.render("login"));
+
+//New Client
+router.get('/newClient', (req,res) => res.render("newClient"));
+
+router.post('/newClient', (req,res) => {
+
+  const {name} = req.body;
+  let errors = [];
+  if(name == ""){
+    errors.push({msg: 'Please fill in all fields'});
+  }
+  if(errors.length > 0) {
+    res.render('newClient', {
+      errors,
+      name
+    });
+  } else {
+    const newClient = new Client({
+      name
+    });
+    newClient.save()
+      .then(user => {
+        req.flash('success_msg', 'You successfully added a client!');
+        res.redirect('/dashboard');
+      })
+      .catch(err => console.log(err));
+  }
+});
+
+//New BuildingSchema
+router.get('/newBuilding', (req,res) => res.render("newBuilding"));
+
+//New Employee
+router.get('/newEmployee', (req,res) => res.render("newEmployee"));
 
 //Register Page
 router.get('/register', (req,res) => res.render("register"));
@@ -89,6 +124,6 @@ router.get('/logout', (req, res) => {
   req.logout();
   req.flash('success_msg', 'You have logged out');
   res.redirect('/users/login');
-})
+});
 
 module.exports = router;
