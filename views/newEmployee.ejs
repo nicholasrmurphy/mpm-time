@@ -1,0 +1,23 @@
+<h1>New Employee</h1>
+<form action="/users/newEmployee" method="POST">
+  <div class="form-group">
+    <label>First Name</label>
+    <input class="form-control" id="firstName" placeholder="John">
+  </div>
+  <div class="form-group">
+    <label>Last Name</label>
+    <input class="form-control" id="lastName" placeholder="Smith">
+  </div>
+  <div class="form-group">
+    <label>Job Role</label>
+    <select class="form-control" id="role">
+      <option>Journeyman</option>
+      <option>Foreman</option>
+      <option>Apprentice</option>
+      <option>Stewart</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">
+    Register Employee
+  </button>
+</form>
