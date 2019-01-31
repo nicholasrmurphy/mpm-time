@@ -5,6 +5,7 @@ const passport = require('passport');
 //User model
 const User = require('../models/User');
 const Client = require('../models/Client');
+const RegistrationKey = require('../models/RegistrationKey');
 
 //Login Page
 router.get('/login', (req,res) => res.render("login"));
@@ -48,7 +49,7 @@ router.get('/register', (req,res) => res.render("register"));
 
 //Register Handle
 router.post('/register', (req, res) => {
-  const { name, email, password, password2 } = req.body;
+  const { name, email, password, password2, registrationKey } = req.body;
   let errors = [];
 
   //Check required fields
@@ -63,51 +64,80 @@ router.post('/register', (req, res) => {
   if(password.length < 6) {
     errors.push({msg : 'Password should be at least 6 characters'});
   }
-  if(errors.length > 0) {
-    res.render('register', {
-      errors,
-      name,
-      email,
-      password,
-      password2
-    });
-  } else {
-    //Validation passed
-    User.findOne({email: email})
-    .then(user => {
-      if(user) {
-        //User exists
-        errors.push({msg: 'Email is already registered'});
+  //Check if the registrationKey matches one in the database
+  RegistrationKey.findOneAndUpdate({key: registrationKey},{$inc:{'numUsed':1}})
+  .then(key => {
+    if(key) {
+      console.log("key matched");
+      console.log("Received data: " + key);
+      console.log("Received as " + typeof(key));
+      //if any errors, dont leave page
+      if(errors.length>0){
+        //dont continue
         res.render('register', {
           errors,
           name,
           email,
           password,
-          password2
+          password2,
+          registrationKey
         });
       } else {
-        const newUser = new User({
-          name,
-          email,
-          password
+        //Validation passed
+        User.findOne({email: email})
+        .then(user => {
+          if(user) {
+            //User exists
+            errors.push({msg: 'Email is already registered'});
+            res.render('register', {
+              errors,
+              name,
+              email,
+              password,
+              password2,
+              registrationKey
+            });
+          } else {
+            const role = key.role;
+            const privilege = key.privilege;
+            console.log("adding user with role " + role);
+            const newUser = new User({
+              name,
+              role,
+              privilege,
+              email,
+              password
+            });
+            //Hash Password
+            bcrypt.genSalt(10, (err, salt) =>
+              bcrypt.hash(newUser.password, salt, (err, hash) => {
+                if(err) throw err;
+                //Set password to hashed
+                newUser.password = hash;
+                //Save user
+                newUser.save()
+                  .then(user => {
+                    req.flash('success_msg', 'You are now registered and can log in');
+                    res.redirect('/users/login');
+                  })
+                  .catch(err => console.log(err));
+              }))
+          }
         });
-        //Hash Password
-        bcrypt.genSalt(10, (err, salt) =>
-          bcrypt.hash(newUser.password, salt, (err, hash) => {
-            if(err) throw err;
-            //Set password to hashed
-            newUser.password = hash;
-            //Save user
-            newUser.save()
-              .then(user => {
-                req.flash('success_msg', 'You are now registered and can log in');
-                res.redirect('/users/login');
-              })
-              .catch(err => console.log(err));
-          }))
       }
-    });
-  }
+    } else {
+      errors.push({msg:"Invalid registration key"});
+      res.render('register', {
+        errors,
+        name,
+        email,
+        password,
+        password2,
+        registrationKey
+      });
+      console.log("key did not match");
+    }
+  });
 });
 
 //login Handle
