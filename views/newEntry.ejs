@@ -1,0 +1,56 @@
+<h1>New Entry</h1>
+<% include ./partials/messages %>
+<form action="/users/newEntry" method="POST">
+  <div class="form-group">
+    <label>Hours</label>
+    <select
+    class="form-control"
+    id="hours"
+    name="hours">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option selected>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+      <option>11</option>
+      <option>12</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Room</label>
+    <input
+    class="form-control"
+    id="room"
+    name = "room"
+    placeholder="101A">
+  </div>
+  <div class="form-group">
+    <label>Building</label>
+    <select
+    class="form-control"
+    id="building"
+    name="building">
+      <option>McClurg Court</option>
+      <option>The Doral</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Note</label>
+    <input
+    class="form-control"
+    id="note"
+    name="note"
+    placeholder="Water damage">
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">
+    Save Entry
+  </button>
+</form>
+<p>
+  <a href="/dashboard">Return to Dashboard</a>
+</p>

@@ -1,13 +1,31 @@
 <h1>New Building</h1>
-<form>
+<% include ./partials/messages %>
+<form action="/users/newBuilding" method="POST">
   <div class="form-group">
     <label>Name</label>
-    <input class="form-control" id="firstName" placeholder="Empire State">
+    <input
+      class="form-control"
+      id="name"
+      name="name"
+      placeholder="Empire State"
+      >
+  </div>
+  <div class="form-group">
+    <label>Address</label>
+    <input
+      class="form-control"
+      id="address"
+      name="address"
+      placeholder="1 Infinite Loop"
+      >
   </div>
   <div class="form-group">
     <label>Client</label>
-    <select class="form-control" id="role">
-      <option>Habitat</option>
+    <select
+    class="form-control"
+    id="client"
+    name="client">
+      <option selected>Habitat</option>
       <option>Seven Bridges</option>
     </select>
   </div>

@@ -8,9 +8,13 @@ const BuildingSchema = new mongoose.Schema({
   address: {
     type: String,
     required: true
+  },
+  client: {
+    type: String,
+    required: true
   }
 });
 
 const Building = mongoose.model('Building', BuildingSchema);
 
-module.exports = Buliding;
+module.exports = Building;

@@ -3,6 +3,8 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 //User model
+const Building = require('../models/Building');
+const Entry = require('../models/Entry');
 const User = require('../models/User');
 const Client = require('../models/Client');
 const RegistrationKey = require('../models/RegistrationKey');
@@ -36,10 +38,70 @@ router.post('/newClient', (req,res) => {
       })
       .catch(err => console.log(err));
   }
+
 });
 
-//New BuildingSchema
+//New Entry
+router.get('/newEntry', (req,res) => res.render("newEntry"));
+router.post('/newEntry', (req,res) => {
+  const {hours,room,building,note} = req.body;
+  let errors = [];
+  if(room == ""){
+    errors.push({msg: 'Please fill in a room number'});
+  }
+  if(errors.length > 0) {
+    res.render('newEntry', {
+      errors
+    });
+  } else {
+    const newEntry = new Entry({
+      hours,
+      room,
+      building,
+      note
+    });
+    newEntry.save()
+      .then(user => {
+        req.flash('success_msg', 'You successfully added an entry!');
+        res.redirect('/dashboard');
+      })
+      .catch(err => console.log(err));
+  }
+});
+
+//New Building
 router.get('/newBuilding', (req,res) => res.render("newBuilding"));
+
+router.post('/newBuilding', (req,res) => {
+  const{name,address,client} = req.body;
+
+  let errors = [];
+  if(name == ""){
+    errors.push({msg: 'Please fill in a name'});
+  }
+  if(address == ""){
+    errors.push({msg: 'Please fill in an address'});
+  }
+  if(errors.length > 0) {
+    res.render('newBuilding', {
+      errors,
+      name,
+      address
+    });
+  } else {
+    const newBuilding = new Building({
+      name,
+      address,
+      client
+    });
+    newBuilding.save()
+      .then(user => {
+        req.flash('success_msg', 'You successfully added a building!');
+        res.redirect('/dashboard');
+      })
+      .catch(err => console.log(err));
+    }
+});
 
 //New Employee
 router.get('/newEmployee', (req,res) => res.render("newEmployee"));
@@ -49,11 +111,11 @@ router.get('/register', (req,res) => res.render("register"));
 
 //Register Handle
 router.post('/register', (req, res) => {
-  const { name, email, password, password2, registrationKey } = req.body;
+  const { firstName, lastName, email, password, password2, registrationKey } = req.body;
   let errors = [];
 
   //Check required fields
-  if(!name || !email || !password || !password2) {
+  if(!firstName || !lastName || !email || !password || !password2) {
     errors.push({msg: 'Please fill in all fields'});
   }
   //Check passwords match
@@ -61,22 +123,21 @@ router.post('/register', (req, res) => {
     errors.push({msg: 'Passwords do not match'});
   }
   //Check pass length
-  if(password.length < 6) {
-    errors.push({msg : 'Password should be at least 6 characters'});
+  if(password.length < 8) {
+    errors.push({msg : 'Password should be at least 8 characters'});
   }
   //Check if the registrationKey matches one in the database
   RegistrationKey.findOneAndUpdate({key: registrationKey},{$inc:{'numUsed':1}})
   .then(key => {
     if(key) {
       console.log("key matched");
-      console.log("Received data: " + key);
-      console.log("Received as " + typeof(key));
       //if any errors, dont leave page
       if(errors.length>0){
         //dont continue
         res.render('register', {
           errors,
-          name,
+          firstName,
+          lastName,
           email,
           password,
           password2,
@@ -91,7 +152,8 @@ router.post('/register', (req, res) => {
             errors.push({msg: 'Email is already registered'});
             res.render('register', {
               errors,
-              name,
+              firstName,
+              lastName,
               email,
               password,
               password2,
@@ -100,9 +162,9 @@ router.post('/register', (req, res) => {
           } else {
             const role = key.role;
             const privilege = key.privilege;
-            console.log("adding user with role " + role);
             const newUser = new User({
-              name,
+              firstName,
+              lastName,
               role,
               privilege,
               email,
@@ -129,7 +191,8 @@ router.post('/register', (req, res) => {
       errors.push({msg:"Invalid registration key"});
       res.render('register', {
         errors,
-        name,
+        firstName,
+        lastName,
         email,
         password,
         password2,
