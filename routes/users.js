@@ -13,7 +13,6 @@ const RegistrationKey = require('../models/RegistrationKey');
 router.get('/login', (req,res) => res.render("login"));
 
 //New Client
-router.get('/newClient', (req,res) => res.render("newClient"));
 
 router.post('/newClient', (req,res) => {
 
@@ -42,9 +41,8 @@ router.post('/newClient', (req,res) => {
 });
 
 //New Entry
-router.get('/newEntry', (req,res) => res.render("newEntry"));
 router.post('/newEntry', (req,res) => {
-  const {hours,room,building,note} = req.body;
+  const {hours,room,building,note,firstName,lastName} = req.body;
   let errors = [];
   if(room == ""){
     errors.push({msg: 'Please fill in a room number'});
@@ -58,7 +56,9 @@ router.post('/newEntry', (req,res) => {
       hours,
       room,
       building,
-      note
+      note,
+      firstName,
+      lastName
     });
     newEntry.save()
       .then(user => {
@@ -70,8 +70,6 @@ router.post('/newEntry', (req,res) => {
 });
 
 //New Building
-router.get('/newBuilding', (req,res) => res.render("newBuilding"));
-
 router.post('/newBuilding', (req,res) => {
   const{name,address,client} = req.body;
 
@@ -102,12 +100,6 @@ router.post('/newBuilding', (req,res) => {
       .catch(err => console.log(err));
     }
 });
-
-//New Employee
-router.get('/newEmployee', (req,res) => res.render("newEmployee"));
-
-//Register Page
-router.get('/register', (req,res) => res.render("register"));
 
 //Register Handle
 router.post('/register', (req, res) => {

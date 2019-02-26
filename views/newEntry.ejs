@@ -1,7 +1,8 @@
 <h1>New Entry</h1>
-<% include ./partials/messages %>
 <form action="/users/newEntry" method="POST">
   <div class="form-group">
+    <input type="hidden" name="firstName" id="firstName" value=<%=firstName%>>
+    <input type="hidden" name="lastName" id="lastName" value=<%=lastName%>>
     <label>Hours</label>
     <select
     class="form-control"
@@ -51,6 +52,3 @@
     Save Entry
   </button>
 </form>
-<p>
-  <a href="/dashboard">Return to Dashboard</a>
-</p>

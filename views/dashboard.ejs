@@ -1,11 +1,45 @@
 <h1 class="mt-4">Dashboard</h1>
-<p class="lead mb-3">Welcome <%= firstName %></p>
+<p class="lead mb-3">Welcome, <%= firstName %></p>
 <% include ./partials/messages %>
-<div class="list-group">
-  <a href="/users/newEntry" class="list-group-item list-group-item-action">Create a Work Entry</a>
-  <!-- <a href="/users/newEmployee" class="list-group-item list-group-item-action">Add an Employee</a> -->
-  <a href="/users/newClient" class="list-group-item list-group-item-action">Add a Client</a>
-  <a href="/users/newBuilding" class="list-group-item list-group-item-action">Add a Building</a>
+
+<div class="accordion" id="accordionExample">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Create a Work Entry
+        </button>
+      </h2>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <% include newEntry %>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Add a New Client
+        </button>
+      </h2>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <% include newClient %>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Add a Building
+        </button>
+      </h2>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+      <% include newBuilding %>
+    </div>
+  </div>
 </div>
 <br><br>
 <a href="/users/logout" class="btn btn-secondary">Logout</a>

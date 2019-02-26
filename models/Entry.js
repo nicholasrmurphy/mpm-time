@@ -17,6 +17,14 @@ const EntrySchema = new mongoose.Schema({
   note: {
     type: String,
     required: false
+  },
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: true
   }
 });
 
