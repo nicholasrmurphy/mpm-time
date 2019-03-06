@@ -9,11 +9,7 @@ router.get('/', (req,res) => res.render('welcome'));
 router.get('/dashboard',ensureAuthenticated, (req,res) =>{
   res.render('dashboard', {
     firstName: req.user.firstName,
-    lastName: req.user.lastName
-  });
-  res.render('newEntry', {
-    firstName: req.user.firstName,
-    lastName: req.user.lastName
+    lastName: req.user.lastName,
   });
 });
 

@@ -24,11 +24,13 @@
     class="form-control"
     id="client"
     name="client">
-      <option selected>Habitat</option>
-      <option>Seven Bridges</option>
+    <%result.forEach(function(item) { %>
+      <option><%=item.name%></option>
+    <%})%>
     </select>
   </div>
   <button type="submit" class="btn btn-primary btn-block">
     Register Building
   </button>
 </form>
+<% include ./partials/footer %>

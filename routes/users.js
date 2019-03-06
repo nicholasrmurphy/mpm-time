@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const {ensureAuthenticated} = require('../config/auth');
 //User model
 const Building = require('../models/Building');
 const Entry = require('../models/Entry');
@@ -12,8 +13,14 @@ const RegistrationKey = require('../models/RegistrationKey');
 //Login Page
 router.get('/login', (req,res) => res.render("login"));
 
-//New Client
+router.get('/loadEntries', (req,res) => {
+  Entry.find({}, function(err, data) {
+      res.render('loadEntries',{result:data});
+    });
+});
 
+//New Client
+router.get('/newClient', (req,res) => res.render('newClient'));
 router.post('/newClient', (req,res) => {
 
   const {name} = req.body;
@@ -41,6 +48,12 @@ router.post('/newClient', (req,res) => {
 });
 
 //New Entry
+router.get('/newEntry',ensureAuthenticated, (req,res) => {
+  Building.find({}, function(err, data) {
+    res.render('newEntry',{result:data,firstName:req.user.firstName,lastName:req.user.lastName});
+  });
+});
+
 router.post('/newEntry', (req,res) => {
   const {hours,room,building,note,firstName,lastName} = req.body;
   let errors = [];
@@ -70,6 +83,12 @@ router.post('/newEntry', (req,res) => {
 });
 
 //New Building
+router.get('/newBuilding',ensureAuthenticated, (req,res) => {
+  Client.find({}, function(err, data) {
+    res.render('newBuilding',{result:data});
+  });
+});
+
 router.post('/newBuilding', (req,res) => {
   const{name,address,client} = req.body;
 
@@ -102,6 +121,8 @@ router.post('/newBuilding', (req,res) => {
 });
 
 //Register Handle
+router.get('/register', (req, res) => res.render('register'));
+
 router.post('/register', (req, res) => {
   const { firstName, lastName, email, password, password2, registrationKey } = req.body;
   let errors = [];

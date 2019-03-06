@@ -36,8 +36,9 @@
     class="form-control"
     id="building"
     name="building">
-      <option>McClurg Court</option>
-      <option>The Doral</option>
+    <%result.forEach(function(item) { %>
+      <option><%=item.name%></option>
+    <%})%>
     </select>
   </div>
   <div class="form-group">
@@ -52,3 +53,4 @@
     Save Entry
   </button>
 </form>
+<% include ./partials/footer %>
