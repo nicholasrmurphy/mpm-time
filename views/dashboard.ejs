@@ -1,11 +1,59 @@
+<% include ./partials/header %>
 <h1 class="mt-4">Dashboard</h1>
-<p class="lead mb-3">Welcome, <%=firstName %></p>
 <% include ./partials/messages %>
+<h4> Welcome, <%= firstName %> </h4>
 <ul class="list-group">
-  <li class="list-group-item"><a href="/users/loadEntries"> View Entries</a></li>
-  <li class="list-group-item"><a href="/users/newBuilding">Add Building</a></li>
-  <li class="list-group-item"><a href="/users/newClient">Add Client</a></li>
-  <li class="list-group-item"><a href="/users/newEntry">Add Entry</a></li>
+  <table style="width:100%" class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th>Employee</th>
+        <th>Building</th>
+        <th>Room</th>
+        <th>Hours</th>
+        <th>Note</th>
+        <th>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+            <i class="fas fa-calendar-plus"></i>
+          </button>
+        </th>
+      </tr>
+    </thead>
+  <%result.forEach(function(item) { %>
+      <tr>
+        <td><%=item.firstName%> <%=item.lastName%></td>
+        <td><%=item.building%></td>
+        <td><%=item.room%></td>
+        <td><%=item.hours%></td>
+        <td><%=item.note%></td>
+        <td><div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i>
+            </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">Edit</a>
+                <a class="dropdown-item" href="#">Delete</a>
+              </div>
+            </div>
+          </td>
+      </tr>
+  <%})%>
+  </table>
+  <br>
 </ul>
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">New Entry</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <% include newEntry %>
+      </div>
+    </div>
+  </div>
+</div>
 <br>
-<a href="/users/logout" class="btn btn-secondary">Logout</a>
