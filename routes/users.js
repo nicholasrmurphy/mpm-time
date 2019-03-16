@@ -55,7 +55,13 @@ router.get('/newEntry',ensureAuthenticated, (req,res) => {
 });
 
 router.post('/newEntry', (req,res) => {
-  const {hours,room,building,note,firstName,lastName} = req.body;
+  var {regHours,otHours,room,building,note,firstName,lastName, complete} = req.body;
+
+  if (complete == "Yes") {
+    complete = true;
+  } else {
+    complete = false;
+  }
   let errors = [];
   if(room == ""){
     errors.push({msg: 'Please fill in a room number'});
@@ -66,10 +72,12 @@ router.post('/newEntry', (req,res) => {
     });
   } else {
     const newEntry = new Entry({
-      hours,
+      regHours,
+      otHours,
       room,
       building,
       note,
+      complete,
       firstName,
       lastName
     });
