@@ -20,7 +20,10 @@ router.get('/loadEntries', (req,res) => {
 });
 
 //New Client
-router.get('/newClient', (req,res) => res.render('newClient'));
+router.get('/newClient',ensureAuthenticated, (req,res) => {
+  firstName = req.user.firstName
+  res.render('newClient',{firstName:firstName});
+});
 router.post('/newClient', (req,res) => {
 
   const {name} = req.body;
@@ -92,8 +95,9 @@ router.post('/newEntry', (req,res) => {
 
 //New Building
 router.get('/newBuilding',ensureAuthenticated, (req,res) => {
+  firstName = req.user.firstName
   Client.find({}, function(err, data) {
-    res.render('newBuilding',{result:data});
+    res.render('newBuilding',{result:data,firstName:firstName});
   });
 });
 
