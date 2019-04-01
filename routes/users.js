@@ -86,9 +86,10 @@ router.post('/newEntry', (req,res) => {
     errors.push({msg: 'Please enter the date in this format: MM/DD/YYYY'});
   }
   if(errors.length > 0) {
-    res.render('newEntry', {
-      errors
-    });
+    for (var i=0;i<errors.length;i++){
+      req.flash('success_msg', errors[i].msg);
+    }
+    res.redirect('/dashboard');
   } else {
     const newEntry = new Entry({
       datePerformed,

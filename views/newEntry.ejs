@@ -13,6 +13,7 @@
     class="form-control"
     id="regHours"
     name="regHours">
+      <option>0</option>
       <option>1</option>
       <option>2</option>
       <option>3</option>
@@ -62,9 +63,9 @@
     class="form-control"
     id="building"
     name="building">
-    <%for (var item in package.buildings) { %>
+    <%buildings.forEach(function(item) { %>
       <option><%=item.name%></option>
-    <%}%>
+    <%})%>
     </select>
   </div>
   <div class="form-group">
