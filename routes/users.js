@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const {ensureAuthenticated} = require('../config/auth');
+
 //User model
 const Building = require('../models/Building');
 const Entry = require('../models/Entry');
@@ -58,7 +59,14 @@ router.get('/newEntry',ensureAuthenticated, (req,res) => {
 });
 
 router.post('/newEntry', (req,res) => {
-  var {regHours,otHours,room,building,note,firstName,lastName, complete} = req.body;
+
+  function isValidDate(s) {
+    var bits = s.split('/');
+    var d = new Date(bits[2], bits[1] - 1, bits[0]);
+    return d && (d.getMonth() + 1) == bits[1];
+  }
+
+  var {regHours,otHours,room,building,note,firstName,lastName,complete,datePerformed} = req.body;
 
   if (complete == "Yes") {
     complete = true;
@@ -69,12 +77,21 @@ router.post('/newEntry', (req,res) => {
   if(room == ""){
     errors.push({msg: 'Please fill in a room number'});
   }
+  if (datePerformed == "") {
+    errors.push({msg: 'Please fill in a date'});
+  }
+  if (isValidDate(datePerformed)) {
+    //valid date
+  } else {
+    errors.push({msg: 'Please enter the date in this format: MM/DD/YYYY'});
+  }
   if(errors.length > 0) {
     res.render('newEntry', {
       errors
     });
   } else {
     const newEntry = new Entry({
+      datePerformed,
       regHours,
       otHours,
       room,

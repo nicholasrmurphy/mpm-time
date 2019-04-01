@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const EntrySchema = new mongoose.Schema({
   //hours, room, buliding, note
+  datePerformed : {
+    type: Date,
+    required: true
+  },
   regHours: {
     type: Number,
     required: true

@@ -1,66 +1,33 @@
 <% include ./partials/header %>
 <h1 class="mt-4">Dashboard</h1>
 <% include ./partials/messages %>
-<ul class="list-group">
-  <table style="width:100%" class="table table-striped">
-    <thead class="thead-dark">
-      <tr>
-        <th>Employee</th>
-        <th>Building</th>
-        <th>Room</th>
-        <th>Regular Hours</th>
-        <th>Overtime Hours</th>
-        <th>Total Hours</th>
-        <th>Work Performed</th>
-        <th>Complete</th>
-        <th>
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-            <i class="fas fa-calendar-plus"></i>
-          </button>
-        </th>
-      </tr>
-    </thead>
-  <%result.forEach(function(item) { %>
-      <% totalHours = (item.regHours + item.otHours) %>
-      <% var complete; if (item.complete == true) { complete = "Yes";}else{ complete = "No";} %>
-      <tr>
-        <td><%=item.firstName%> <%=item.lastName%></td>
-        <td><%=item.building%></td>
-        <td><%=item.room%></td>
-        <td><%=item.regHours%></td>
-        <td><%=item.otHours%></td>
-        <td><%=totalHours%></td>
-        <td><%=item.note%></td>
-        <td><%=complete%></td>
-        <td><!-- <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-ellipsis-v"></i>
-            </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#">Edit</a>
-                <a class="dropdown-item" href="#">Delete</a>
-              </div>
-            </div> -->
-          </td>
-      </tr>
+<nav class="navbar navbar-light bg-light">
+  <a class="navbar-brand">Filter By</a>
+  <form class="form-inline" method="POST">
+    <a class="navbar-brand">
+        <select class="form-control" id="filterBy" name="filterBy">
+          <option>Show All</option>
+          <% if (package.privilege != 'user' ) { %>
+            <option>Employee</option>
+          <%}%>
+        </select>
+    </a>
+    <% if (package.privilege != 'user' ) { %>
+      <a class="navbar-brand">
+          <select class="form-control" id="filterValue" name="filterValue">
+            <option>Select</option>
+            <%allEmployees.forEach(function(item) { %>
+              <option><%=item.firstName%> <%=item.lastName%></option>
+            <% }) %>
+          </select>
+      </a>
+    <%}%>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
+  </form>
+</nav>
+<% include ./partials/table %>
+<script type="text/javascript">
+  <%allEmployees.forEach(function(item) { %>
+    console.log('<%=item.firstName%>');
   <%})%>
-  </table>
-  <br>
-</ul>
-<!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">New Entry</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <% include newEntry %>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
+</script>
