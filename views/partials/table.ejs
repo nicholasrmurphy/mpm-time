@@ -10,6 +10,7 @@
         <th>Overtime Hours</th>
         <th>Total Hours</th>
         <th>Work Performed</th>
+        <th>Job</th>
         <th>Complete</th>
         <th>
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
@@ -22,7 +23,16 @@
     <%entries.forEach(function(item) { %>
     <% var doIt = true; %>
       <% if (package.filterBy == 'Employee') { %>
+        <% console.log("Received filter " + package.filterBy); %>
         <% if ((item.firstName + " " + item.lastName) != package.filterValue) { %>
+          <%console.log("Skipping item");%>
+          <% doIt = false; %>
+        <%}%>
+      <%}%>
+      <% if (package.filterBy == 'Room') { %>
+        <% console.log("Received filter " + package.filterBy); %>
+        <% if ((item.room) != package.filterValue) { %>
+          <%console.log("Skipping item");%>
           <% doIt = false; %>
         <%}%>
       <%}%>
@@ -42,6 +52,7 @@
           <td><%=item.otHours%></td>
           <td><%=totalHours%></td>
           <td><%=item.note%></td>
+          <td><%=item.jobName%>
           <td><%=complete%></td>
           <td></td>
         </tr>

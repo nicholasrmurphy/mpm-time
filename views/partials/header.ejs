@@ -7,10 +7,11 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link active" id="dashboardNav" href="../dashboard">Dashboard<span class="sr-only">(current)</span></a>
-          <% if (package.privilege != 'user' ) { %>
-            <a class="nav-item nav-link" href="/users/newBuilding">Add Building</a>
-            <a class="nav-item nav-link" href="/users/newClient">Add Client</a>
-          <% } %>
+          <a class="nav-item nav-link active" id="dashboardNav" href="/users/newJob">New Job<span class="sr-only">(current)</span></a>
+            <% if (package.privilege != 'user' ) { %>
+              <a class="nav-item nav-link" href="/users/newBuilding">Add Building</a>
+              <a class="nav-item nav-link" href="/users/newClient">Add Client</a>
+            <% } %>
         </div>
       </div>
       <span class="navbar-text"style="margin-right:20px;">
@@ -21,4 +22,4 @@
       </span>
     </nav>
 </div>
-<br><br><br>
+<br><br><br><br>

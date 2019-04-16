@@ -1,29 +1,22 @@
+
 <% include ./partials/header %>
 <h1 class="mt-4">Dashboard</h1>
 <% include ./partials/messages %>
 <nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand">Filter By</a>
-  <form class="form-inline" method="POST">
-    <a class="navbar-brand">
-        <select class="form-control" id="filterBy" name="filterBy">
-          <option>Show All</option>
-          <% if (package.privilege != 'user' ) { %>
-            <option>Employee</option>
-          <%}%>
-        </select>
-    </a>
-    <% if (package.privilege != 'user' ) { %>
-      <a class="navbar-brand">
-          <select class="form-control" id="filterValue" name="filterValue">
-            <option>Select</option>
-            <%allEmployees.forEach(function(item) { %>
-              <option><%=item.firstName%> <%=item.lastName%></option>
-            <% }) %>
-          </select>
-      </a>
-    <%}%>
-    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
-  </form>
+  <!-- selector -->
+    <div class="dropdown show">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Filter By
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <a class="dropdown-item" href="/users/filterPage?param=Room">Room</a>
+        <a class="dropdown-item" href="/users/filterPage?param=Job">Job</a>
+        <%if (package.privilege != 'user') { %>
+          <a class="dropdown-item" href="/users/filterPage?param=Employee">Employee</a>
+        <%}%>
+      </div>
+    </div>
+  <!-- ^^ -->
 </nav>
 <% include ./partials/table %>
 <script type="text/javascript">

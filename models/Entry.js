@@ -37,6 +37,10 @@ const EntrySchema = new mongoose.Schema({
   lastName: {
     type: String,
     required: true
+  },
+  jobName: {
+    type: String, //string that points to the ObjectId of the associated job
+    required: true
   }
 });
 

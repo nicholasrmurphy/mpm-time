@@ -4,12 +4,174 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const {ensureAuthenticated} = require('../config/auth');
 
-//User model
+//Models
+const Job = require('../models/Job');
 const Building = require('../models/Building');
 const Entry = require('../models/Entry');
 const User = require('../models/User');
 const Client = require('../models/Client');
 const RegistrationKey = require('../models/RegistrationKey');
+
+function initPackage(req) {
+
+  var {filterBy,filterValue} = req.body;
+  var package = {
+    'firstName': req.user.firstName,
+    'lastName': req.user.lastName,
+    'privilege': req.user.privilege,
+  }
+
+  if (filterBy == undefined) {
+    filterBy = 'none';
+    filterValue = 'none';
+  }
+  if (filterValue == undefined) {
+    filterBy = 'none';
+    filterValue = 'none';
+  }
+  if (req.user.privilege == 'user') {
+    filterBy = 'Employee';
+    filterValue = req.user.firstName + ' ' + req.user.lastName;
+  }
+  package.filterBy = filterBy;
+  package.filterValue = filterValue;
+  return package;
+
+}
+
+//New Job
+router.get('/newJob', ensureAuthenticated, (req,res) => {
+  res.render('newJob');
+});
+
+router.post('/newJob', ensureAuthenticated, (req,res) => {
+  const {jobName} = req.body;
+  console.log("Making job with name " + jobName)
+  var errors = [];
+  if (jobName == "") {
+    errors.push({msg: 'Please fill in all fields'});
+  }
+  if(errors.length > 0) {
+    res.render('newJob', {
+      errors
+    });
+  } else {
+    creator = req.user._id.toString();
+    entries = []
+    complete = false
+
+    const newJob = new Job({
+      jobName,
+      creator,
+      entries,
+      complete
+    });
+
+    newJob.save()
+      .then(user => {
+        req.flash('success_msg', 'You successfully added a Job!');
+        res.redirect('/dashboard');
+      })
+      .catch(err => console.log(err));
+  }
+});
+
+//Filter Page
+router.post('/filterPage', ensureAuthenticated, (req,res) => {
+  var {filterBy,filterValue} = req.body;
+  package = initPackage(req);
+  package.filterBy = filterBy;
+  package.filterValue = filterValue;
+  console.log(filterValue);
+  Building.find({}, function(err, buildings) {
+    User.find({}, function(err, employees) {
+      Entry.find({}, function(err, entries) {
+        console.log('Rendering dashboard with fiterbBy: ' + package.filterBy + ' and filterValue: ' + package.filterValue);
+        res.render('dashboard',{package:package,allEmployees:employees,buildings:buildings,entries:entries});
+      });
+    });
+  });
+});
+
+router.get('/filterPage', ensureAuthenticated, (req,res) => {
+  console.log("Called filterPage with GET");
+  var param = req.query.param
+  var package = {
+    'firstName': req.user.firstName,
+    'lastName': req.user.lastName,
+    'privilege': req.user.privilege,
+  }
+  console.log('received filter param: ' + param);
+  if (param == 'Room') {
+    console.log('Loading filterBy with params of room');
+    Entry.find({}, function(err, data) {
+
+      result = [];
+      data.forEach(function(item) {
+        var found = false;
+        for (var i=0;i<result.length;i++) {
+          if (result[i] == item.room) {
+            found = true;
+          }
+        }
+        if (!found) {
+          result.push(item.room);
+        }
+      });
+      res.render('filterPage',{
+        result:result,
+        package:package,
+        param:param
+      });
+    });
+  }
+  if (param == 'Employee') {
+    console.log('Loading filterBy with params of employee');
+    Entry.find({}, function(err, data) {
+      result = [];
+      data.forEach(function(item) {
+        var found = false;
+        for (var i=0;i<result.length;i++) {
+          if (result[i] == item.firstName + " " + item.lastName) {
+            found = true;
+          }
+        }
+        if (!found) {
+          result.push(item.firstName + " " + item.lastName);
+        }
+      });
+      res.render('filterPage',{
+        result:result,
+        package:package,
+        param:param
+      });
+    });
+  }
+  if (param == 'Job') {
+    console.log("Loading filterBY with params of job");
+    result = [];
+    var query = Job.find({}).select('jobName complete');
+    query.exec(function (err, jobData){
+      jobData.forEach(function(item){
+        console.log("Viewind " + item);
+        var string = item.jobName;
+        if (item.complete) {
+          string += " (COMPLETE)";
+        } else {
+          string += " (NOT COMPLETE)";
+        }
+        console.log("Pushing to result " + string);
+        result.push(string);
+      });
+      console.log("Result " + result);
+      res.render('filterPage',{
+        result:result,
+        package:package,
+        param:param
+      });
+    });
+  }
+});
 
 //Login Page
 router.get('/login', (req,res) => res.render("login"));
@@ -66,13 +228,8 @@ router.post('/newEntry', (req,res) => {
     return d && (d.getMonth() + 1) == bits[1];
   }
 
-  var {regHours,otHours,room,building,note,firstName,lastName,complete,datePerformed} = req.body;
+  var {regHours,otHours,room,building,note,firstName,lastName,complete,datePerformed,jobName} = req.body;
 
-  if (complete == "Yes") {
-    complete = true;
-  } else {
-    complete = false;
-  }
   let errors = [];
   if(room == ""){
     errors.push({msg: 'Please fill in a room number'});
@@ -91,6 +248,7 @@ router.post('/newEntry', (req,res) => {
     }
     res.redirect('/dashboard');
   } else {
+    complete = false; // entries are marked complete when the job they are associated with is marked complete
     const newEntry = new Entry({
       datePerformed,
       regHours,
@@ -100,7 +258,8 @@ router.post('/newEntry', (req,res) => {
       note,
       complete,
       firstName,
-      lastName
+      lastName,
+      jobName
     });
     newEntry.save()
       .then(user => {
