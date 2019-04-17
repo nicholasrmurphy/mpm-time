@@ -8,6 +8,7 @@
         <div class="navbar-nav">
           <a class="nav-item nav-link active" id="dashboardNav" href="../dashboard">Dashboard<span class="sr-only">(current)</span></a>
           <a class="nav-item nav-link active" id="dashboardNav" href="/users/newJob">New Job<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link active" id="dashboardNav" href="/users/closeJob">Close Job<span class="sr-only">(current)</span></a>
             <% if (package.privilege != 'user' ) { %>
               <a class="nav-item nav-link" href="/users/newBuilding">Add Building</a>
               <a class="nav-item nav-link" href="/users/newClient">Add Client</a>
@@ -15,7 +16,7 @@
         </div>
       </div>
       <span class="navbar-text"style="margin-right:20px;">
-        Welcome, <%=package.firstName%>
+        Welcome, <%=package.employeeName%>
       </span>
       <span class="navbar-text">
         <a href="/users/logout" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i></a>

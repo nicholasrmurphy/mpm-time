@@ -1,4 +1,3 @@
-
 <% include ./partials/header %>
 <h1 class="mt-4">Dashboard</h1>
 <% include ./partials/messages %>
@@ -9,18 +8,14 @@
         Filter By
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="/users/filterPage?param=Room">Room</a>
-        <a class="dropdown-item" href="/users/filterPage?param=Job">Job</a>
+        <a class="dropdown-item" href="/users/filterPage?param=room">Room</a>
+        <a class="dropdown-item" href="/users/filterPage?param=job">Job</a>
         <%if (package.privilege != 'user') { %>
-          <a class="dropdown-item" href="/users/filterPage?param=Employee">Employee</a>
+          <a class="dropdown-item" href="/users/filterPage?param=creator">Employee</a>
         <%}%>
       </div>
     </div>
   <!-- ^^ -->
 </nav>
 <% include ./partials/table %>
-<script type="text/javascript">
-  <%allEmployees.forEach(function(item) { %>
-    console.log('<%=item.firstName%>');
-  <%})%>
-</script>
+

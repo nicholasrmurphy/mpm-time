@@ -21,22 +21,6 @@
     </thead>
 
     <%entries.forEach(function(item) { %>
-    <% var doIt = true; %>
-      <% if (package.filterBy == 'Employee') { %>
-        <% console.log("Received filter " + package.filterBy); %>
-        <% if ((item.firstName + " " + item.lastName) != package.filterValue) { %>
-          <%console.log("Skipping item");%>
-          <% doIt = false; %>
-        <%}%>
-      <%}%>
-      <% if (package.filterBy == 'Room') { %>
-        <% console.log("Received filter " + package.filterBy); %>
-        <% if ((item.room) != package.filterValue) { %>
-          <%console.log("Skipping item");%>
-          <% doIt = false; %>
-        <%}%>
-      <%}%>
-      <% if (doIt) { %>
         <% totalHours = (item.regHours + item.otHours) %>
         <% var complete; if (item.complete == true) { complete = "Yes";}else{ complete = "No";} %>
         <% var date = item.datePerformed;%>
@@ -44,7 +28,7 @@
         <% var day = date.getDate(); %>
         <% var year = date.getFullYear(); %>
         <tr>
-          <td><%=item.firstName%> <%=item.lastName%></td>
+          <td><%=item.employeeName%></td>
           <td><%=month%>/<%=day%>/<%=year%></td>
           <td><%=item.building%></td>
           <td><%=item.room%></td>
@@ -56,8 +40,7 @@
           <td><%=complete%></td>
           <td></td>
         </tr>
-      <%}%>
-  <%})%>
+      <%})%>
   </table>
   <br>
 </ul>
@@ -72,7 +55,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <% include ../newEntry %>
+        <% include ../additions/newEntry %>
       </div>
     </div>
   </div>

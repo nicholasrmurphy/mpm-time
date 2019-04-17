@@ -9,10 +9,15 @@ const Job = require('../models/Job');
 function initPackage(req) {
 
   var {filterBy,filterValue} = req.body;
+  var name = ""
+  name += req.user.firstName;
+  name += " ";
+  name += req.user.lastName;
+
   var package = {
-    'firstName': req.user.firstName,
-    'lastName': req.user.lastName,
+    'employeeName': name,
     'privilege': req.user.privilege,
+    'id': req.user._id
   }
 
   if (filterBy == undefined) {
@@ -23,13 +28,11 @@ function initPackage(req) {
     filterBy = 'none';
     filterValue = 'none';
   }
-  if (req.user.privilege == 'user') {
-    console.log("User privelage: user");
-    filterBy = 'Employee';
-    filterValue = req.user.firstName + ' ' + req.user.lastName;
-  }
   package.filterBy = filterBy;
   package.filterValue = filterValue;
+  console.log("Set name to " + package.employeeName);
+  console.log("filterBy: " + package.filterBy);
+  console.log("filterValue: " + package.filterValue);
   return package;
 
 }
@@ -37,16 +40,26 @@ function initPackage(req) {
 //Welcome page
 router.get('/', (req,res) => res.render('welcome'));
 
-//dashboard
-router.get('/dashboard',ensureAuthenticated, (req,res) =>{
-  console.log("loading dahboard with GET");
+router.get('/dashboard',ensureAuthenticated, (req,res) =>{ 
+  console.log("loading dashboard with GET");
   package = initPackage(req);
-  Building.find({}, function(err, buildings) {
-    User.find({}, function(err, employees) {
-      Entry.find({}, function(err, entries) {
-        Job.find({}, function(err, jobs) {
-          res.render('dashboard',{package:package,allEmployees:employees,buildings:buildings,entries:entries,jobs:jobs});
-        });
+  var {filterBy,filterValue} = req.body;
+  package.filterBy = filterBy;
+  package.filterValue = filterValue;
+  var buildingQuery = Building.find({}).select('name _id');
+  var jobQuery = Job.find({}).select('jobName _id');
+  var entryQuery;
+  //set entry query based on filters
+  if (package.privilege == 'user') { //only show results for this user
+    entryQuery = Entry.find({creator: package.id});
+  } else { //assumes user is admin
+    entryQuery = Entry.find({});
+  }
+
+  buildingQuery.exec(function(err, buildings) {
+    jobQuery.exec( function(err, jobs) {
+      entryQuery.exec( function(err, entries) {
+        res.render('dashboard',{package:package,buildings:buildings,entries:entries,jobs:jobs});
       });
     });
   });
@@ -55,19 +68,38 @@ router.get('/dashboard',ensureAuthenticated, (req,res) =>{
 //Filter
 router.post('/dashboard', (req,res) => {
   console.log("loading dashboard with POST");
-  let errors = [];
   package = initPackage(req);
   var {filterBy,filterValue} = req.body;
   package.filterBy = filterBy;
   package.filterValue = filterValue;
-  console.log("Set filterBy to " + package.filterBy);
-  console.log("Set filterValue to " + package.filterValue);
-  Building.find({}, function(err, buildings) {
-    User.find({}, function(err, employees) {
-      Entry.find({}, function(err, entries) {
-        Job.find({}, function(err, jobs) {
-          res.render('dashboard',{package:package,allEmployees:employees,buildings:buildings,entries:entries,jobs:jobs});
-        });      
+  var buildingQuery = Building.find({}).select('name _id');
+  var jobQuery = Job.find({}).select('jobName _id');
+  var entryQuery;
+  //set entry query based on filters
+  if (package.privilege == 'user') { //only show results for this user
+    if (package.filterBy == 'room') {
+      entryQuery = Entry.find({room: filterValue, creator: package.id});
+    } else if (package.filterBy == "job") {
+      entryQuery = Entry.find({jobName: filterValue, creator: package.id});
+    } else { //no filter
+      entryQuery = Entry.find({creator: package.id});
+    }
+  } else { //assumes user is admin
+    if (package.filterBy == 'creator') {
+      entryQuery = Entry.find({creator: filterValue});
+    } else if (package.filterBy == 'room') {
+      entryQuery = Entry.find({room: filterValue});
+    } else if (package.filterBy == 'job') {
+      entryQuery = Entry.find({jobName: filterValue});
+    }else { //no filter
+      entryQuery = Entry.find({});
+    }
+  }
+
+  buildingQuery.exec(function(err, buildings) {
+    jobQuery.exec( function(err, jobs) {
+      entryQuery.exec( function(err, entries) {
+        res.render('dashboard',{package:package,buildings:buildings,entries:entries,jobs:jobs});
       });
     });
   });

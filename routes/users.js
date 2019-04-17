@@ -39,9 +39,35 @@ function initPackage(req) {
 
 }
 
+//Close Job
+router.get('/closeJob', ensureAuthenticated, (req,res) => { 
+  jobs = []
+  Job.find({}, function(err,allJobs) { 
+    allJobs.forEach(function(job){
+      if (job.complete) {
+        //don't add it
+      } else {
+        jobs.push(job.jobName);
+      }
+    });
+    res.render('closeJob',{jobs});
+  });
+});
+
+router.post('/closeJob', ensureAuthenticated, (req,res) => { 
+  const {closeJob} = req.body;
+  console.log("Received closeJob with " + closeJob);
+  Job.updateMany({jobName: closeJob}, {complete: true}, function(err,data) {
+    Entry.updateMany({jobName: closeJob}, {complete: true}, function(err,data) {
+      req.flash('success_msg', 'You successfully closed a Job!');
+      res.redirect('/dashboard');
+    });
+  });
+});
+
 //New Job
 router.get('/newJob', ensureAuthenticated, (req,res) => {
-  res.render('newJob');
+  res.render('additions/newJob');
 });
 
 router.post('/newJob', ensureAuthenticated, (req,res) => {
@@ -95,82 +121,31 @@ router.post('/filterPage', ensureAuthenticated, (req,res) => {
 
 router.get('/filterPage', ensureAuthenticated, (req,res) => {
   console.log("Called filterPage with GET");
-  var param = req.query.param
-  var package = {
-    'firstName': req.user.firstName,
-    'lastName': req.user.lastName,
-    'privilege': req.user.privilege,
-  }
-  console.log('received filter param: ' + param);
-  if (param == 'Room') {
-    console.log('Loading filterBy with params of room');
-    Entry.find({}, function(err, data) {
-
-      result = [];
-      data.forEach(function(item) {
-        var found = false;
-        for (var i=0;i<result.length;i++) {
-          if (result[i] == item.room) {
-            found = true;
-          }
-        }
-        if (!found) {
-          result.push(item.room);
-        }
-      });
-      res.render('filterPage',{
-        result:result,
-        package:package,
-        param:param
-      });
+  var readables = [];
+  var values = []
+  var param = req.query.param;
+  console.log("Called filterPage with param " + param);
+  Entry.find({}, function(err,entries) { 
+    entries.forEach(function(entry){
+      if (param == 'creator') {
+        candidateReadable = entry.employeeName;
+        candidateValue = entry.creator;
+      } else if (param == 'room') {
+        candidateReadable = entry.room;
+        candidateValue = entry.room;
+      } else if (param == 'job') {
+        candidateReadable = entry.jobName;
+        candidateValue = entry.jobName;
+      }
+      if (values.includes(candidateValue)) {
+        //don't add it
+      } else {
+        readables.push(candidateReadable);
+        values.push(candidateValue);
+      } 
     });
-  }
-  if (param == 'Employee') {
-    console.log('Loading filterBy with params of employee');
-    Entry.find({}, function(err, data) {
-      result = [];
-      data.forEach(function(item) {
-        var found = false;
-        for (var i=0;i<result.length;i++) {
-          if (result[i] == item.firstName + " " + item.lastName) {
-            found = true;
-          }
-        }
-        if (!found) {
-          result.push(item.firstName + " " + item.lastName);
-        }
-      });
-      res.render('filterPage',{
-        result:result,
-        package:package,
-        param:param
-      });
-    });
-  }
-  if (param == 'Job') {
-    console.log("Loading filterBY with params of job");
-    result = [];
-    var query = Job.find({}).select('jobName complete');
-    query.exec(function (err, jobData){
-      jobData.forEach(function(item){
-        console.log("Viewind " + item);
-        var string = item.jobName;
-        if (item.complete) {
-          string += " (COMPLETE)";
-        } else {
-          string += " (NOT COMPLETE)";
-        }
-        console.log("Pushing to result " + string);
-        result.push(string);
-      });
-      console.log("Result " + result);
-      res.render('filterPage',{
-        result:result,
-        package:package,
-        param:param
-      });
-    });
-  }
+    res.render('filterPage',{readables,values,param});
+  });
 });
 
 //Login Page
@@ -185,7 +160,7 @@ router.get('/loadEntries', (req,res) => {
 //New Client
 router.get('/newClient',ensureAuthenticated, (req,res) => {
   firstName = req.user.firstName
-  res.render('newClient',{firstName:firstName});
+  res.render('additions/newClient',{firstName:firstName});
 });
 router.post('/newClient', (req,res) => {
 
@@ -195,7 +170,7 @@ router.post('/newClient', (req,res) => {
     errors.push({msg: 'Please fill in all fields'});
   }
   if(errors.length > 0) {
-    res.render('newClient', {
+    res.render('additions/newClient', {
       errors,
       name
     });
@@ -216,7 +191,7 @@ router.post('/newClient', (req,res) => {
 //New Entry
 router.get('/newEntry',ensureAuthenticated, (req,res) => {
   Building.find({}, function(err, data) {
-    res.render('newEntry',{result:data,firstName:req.user.firstName,lastName:req.user.lastName});
+    res.render('additions/newEntry',{result:data,firstName:req.user.firstName,lastName:req.user.lastName});
   });
 });
 
@@ -228,7 +203,7 @@ router.post('/newEntry', (req,res) => {
     return d && (d.getMonth() + 1) == bits[1];
   }
 
-  var {regHours,otHours,room,building,note,firstName,lastName,complete,datePerformed,jobName} = req.body;
+  var {regHours,otHours,room,building,note,employeeName,creator,complete,datePerformed,jobName} = req.body;
 
   let errors = [];
   if(room == ""){
@@ -257,8 +232,8 @@ router.post('/newEntry', (req,res) => {
       building,
       note,
       complete,
-      firstName,
-      lastName,
+      creator,
+      employeeName,
       jobName
     });
     newEntry.save()
@@ -274,7 +249,7 @@ router.post('/newEntry', (req,res) => {
 router.get('/newBuilding',ensureAuthenticated, (req,res) => {
   firstName = req.user.firstName
   Client.find({}, function(err, data) {
-    res.render('newBuilding',{result:data,firstName:firstName});
+    res.render('additions/newBuilding',{result:data,firstName:firstName});
   });
 });
 
@@ -329,8 +304,8 @@ router.post('/register', (req, res) => {
     errors.push({msg : 'Password should be at least 8 characters'});
   }
   //Check if the registrationKey matches one in the database
-  RegistrationKey.findOneAndUpdate({key: registrationKey},{$inc:{'numUsed':1}})
-  .then(key => {
+  RegistrationKey.findOneAndUpdate({key: registrationKey},{$inc:{'numUsed':1}}) //increment by one, the times a registration key is used
+  .then(key => {                                                                //this is done to provide insight for security puroposes
     if(key) {
       console.log("key matched");
       //if any errors, dont leave page

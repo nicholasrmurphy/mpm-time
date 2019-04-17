@@ -30,16 +30,16 @@ const EntrySchema = new mongoose.Schema({
     type: Boolean,
     required: true
   },
-  firstName: {
-    type: String,
+  creator: {
+    type: String,//string that points to the ObjectId of the employeeId of creator
     required: true
   },
-  lastName: {
+  employeeName:{
     type: String,
     required: true
   },
   jobName: {
-    type: String, //string that points to the ObjectId of the associated job
+    type: String,
     required: true
   }
 });

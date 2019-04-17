@@ -1,7 +1,7 @@
 <form action="/users/newEntry" method="POST">
   <div class="form-group">
-    <input type="hidden" name="firstName" id="firstName" value=<%=package.firstName%>>
-    <input type="hidden" name="lastName" id="lastName" value=<%=package.lastName%>>
+    <input type="hidden" name="creator" id="creator" value=<%=package.id%>>
+    <input type="hidden" name="employeeName" id="employeeName" value='<%=package.employeeName%>'>
   </div>
   <div class="form-group">
     <label>Date Performed</label>
