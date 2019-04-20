@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const {ensureAuthenticated} = require('../config/auth');
+var mongoose = require('mongoose');
 
 //Models
 const Job = require('../models/Job');
@@ -39,58 +40,102 @@ function initPackage(req) {
 
 }
 
+//View Job Hours
+router.get('/viewHours', ensureAuthenticated, (req,res) => {
+  //make a list for the results
+  jobs = [];
+  //view all of the entries
+  var jobQuery = Job.find({}).populate('buildingID');
+  billables = [];
+  jobQuery.exec(function(err,jobs){
+    jobs.forEach(function(job){
+      var jobRegHours = 0;
+      var jobOTHours = 0;
+      var entryQuery = Entry.find({jobID: job._id}).select('regHours otHours');
+      entryQuery.exec(function(err, entries){
+        entries.forEach(function(entry) {
+          jobRegHours += entry.regHours;
+          jobOTHours += entry.otHours;
+        });
+        var buildingQuery = Building.findOne({_id : job.buildingID}).select('name clientID');
+        buildingQuery.exec(function(err, building){
+          //job hours are totaled here
+          console.log("in building " + job.name + " job Hours: " + (jobRegHours + jobOTHours));
+          var clientQuery = Client.findOne({_id: building.clientID});
+          clientQuery.exec(function(err,client){
+            billableJob = {
+              'name' : job.name,
+              'regHours' : jobRegHours,
+              'otHours' : jobOTHours,
+              'totalHours' : jobRegHours + (1.5 * jobOTHours),
+              'complete' : job.complete,
+              'buildingName' : building.name,
+              'clientName' : client.name
+            }
+            billables.push(billableJob);
+            if (billables.length == jobs.length) {
+              console.log("Rendering viewJobs");
+              res.render('viewHours',{billables});
+            }
+          });
+        });
+      });
+    });
+  });
+});
+
 //Close Job
 router.get('/closeJob', ensureAuthenticated, (req,res) => { 
-  jobs = []
+  jobNames = []
+  jobIDs = []
   Job.find({}, function(err,allJobs) { 
     allJobs.forEach(function(job){
       if (job.complete) {
         //don't add it
       } else {
-        jobs.push(job.jobName);
+        jobNames.push(job.name);
+        jobIDs.push(job._id);
       }
     });
-    res.render('closeJob',{jobs});
+    res.render('closeJob',{jobNames, jobIDs});
   });
 });
 
 router.post('/closeJob', ensureAuthenticated, (req,res) => { 
   const {closeJob} = req.body;
   console.log("Received closeJob with " + closeJob);
-  Job.updateMany({jobName: closeJob}, {complete: true}, function(err,data) {
-    Entry.updateMany({jobName: closeJob}, {complete: true}, function(err,data) {
+  Job.updateMany({ _id: closeJob}, {complete: true}, function(err,data) {
       req.flash('success_msg', 'You successfully closed a Job!');
       res.redirect('/dashboard');
-    });
   });
 });
 
 //New Job
 router.get('/newJob', ensureAuthenticated, (req,res) => {
-  res.render('additions/newJob');
+  var buildingQuery = Building.find({}).select('name _id');
+  buildingQuery.exec(function(err, buildings) {
+    res.render('additions/newJob', {buildings});
+  });
 });
 
 router.post('/newJob', ensureAuthenticated, (req,res) => {
-  const {jobName} = req.body;
+  const {jobName, building} = req.body;
   console.log("Making job with name " + jobName)
   var errors = [];
   if (jobName == "") {
     errors.push({msg: 'Please fill in all fields'});
   }
   if(errors.length > 0) {
-    res.render('newJob', {
+    res.render('additions/newJob', {
       errors
     });
   } else {
-    creator = req.user._id.toString();
-    entries = []
-    complete = false
+    creator = req.user._id;
 
     const newJob = new Job({
-      jobName,
-      creator,
-      entries,
-      complete
+      'name': jobName,
+      'buildingID' : building,
+      'employeeID' : creator
     });
 
     newJob.save()
@@ -112,7 +157,7 @@ router.post('/filterPage', ensureAuthenticated, (req,res) => {
   Building.find({}, function(err, buildings) {
     User.find({}, function(err, employees) {
       Entry.find({}, function(err, entries) {
-        console.log('Rendering dashboard with fiterbBy: ' + package.filterBy + ' and filterValue: ' + package.filterValue);
+        console.log('Rendering dashboard with fiterBy: ' + package.filterBy + ' and filterValue: ' + package.filterValue);
         res.render('dashboard',{package:package,allEmployees:employees,buildings:buildings,entries:entries});
       });
     });
@@ -124,28 +169,32 @@ router.get('/filterPage', ensureAuthenticated, (req,res) => {
   var readables = [];
   var values = []
   var param = req.query.param;
-  console.log("Called filterPage with param " + param);
-  Entry.find({}, function(err,entries) { 
-    entries.forEach(function(entry){
-      if (param == 'creator') {
-        candidateReadable = entry.employeeName;
-        candidateValue = entry.creator;
-      } else if (param == 'room') {
-        candidateReadable = entry.room;
-        candidateValue = entry.room;
-      } else if (param == 'job') {
-        candidateReadable = entry.jobName;
-        candidateValue = entry.jobName;
-      }
-      if (values.includes(candidateValue)) {
-        //don't add it
-      } else {
-        readables.push(candidateReadable);
-        values.push(candidateValue);
-      } 
+  if (param == 'creator') {
+    User.find({}, function(err,users) {
+      users.forEach(function(user){
+        readables.push(user.firstName + " " + user.lastName);
+        values.push(user._id);
+      });
+      res.render('filterPage',{readables,values,param});
     });
-    res.render('filterPage',{readables,values,param});
-  });
+  } else {
+    var query;
+    if (param == 'openJob') {
+       query = Job.find({complete: false});
+    } else if (param =='closedJob') {
+      query = Job.find({complete: true}); 
+    } else if (param =='job') {
+      query = Job.find({});
+    }
+    query.exec(function(err,jobs) {
+      jobs.forEach(function(job) {
+        readables.push(job.name);
+        values.push(job._id);
+      });
+      res.render('filterPage',{readables,values,param});
+    });
+  console.log("Called filterPage with param " + param);
+  }
 });
 
 //Login Page
@@ -159,8 +208,7 @@ router.get('/loadEntries', (req,res) => {
 
 //New Client
 router.get('/newClient',ensureAuthenticated, (req,res) => {
-  firstName = req.user.firstName
-  res.render('additions/newClient',{firstName:firstName});
+  res.render('additions/newClient');
 });
 router.post('/newClient', (req,res) => {
 
@@ -203,14 +251,15 @@ router.post('/newEntry', (req,res) => {
     return d && (d.getMonth() + 1) == bits[1];
   }
 
-  var {regHours,otHours,room,building,note,employeeName,creator,complete,datePerformed,jobName} = req.body;
+  var {regHours,otHours,note,employeeName,datePerformed,job} = req.body;
 
   let errors = [];
-  if(room == ""){
-    errors.push({msg: 'Please fill in a room number'});
-  }
+
   if (datePerformed == "") {
     errors.push({msg: 'Please fill in a date'});
+  }
+  if (job == undefined) {
+    errors.push({msg: "Please select a job"});
   }
   if (isValidDate(datePerformed)) {
     //valid date
@@ -223,19 +272,17 @@ router.post('/newEntry', (req,res) => {
     }
     res.redirect('/dashboard');
   } else {
-    complete = false; // entries are marked complete when the job they are associated with is marked complete
+    creator = mongoose.Types.ObjectId(req.user._id);
+    job = mongoose.Types.ObjectId(job)
     const newEntry = new Entry({
-      datePerformed,
-      regHours,
-      otHours,
-      room,
-      building,
-      note,
-      complete,
-      creator,
-      employeeName,
-      jobName
+      'jobID' : job,
+      'employeeID' : creator,
+      'datePerformed': datePerformed,
+      'regHours' : regHours,
+      'otHours' : otHours,
+      'note' : note
     });
+    console.log(newEntry.note);
     newEntry.save()
       .then(user => {
         req.flash('success_msg', 'You successfully added an entry!');
@@ -247,9 +294,8 @@ router.post('/newEntry', (req,res) => {
 
 //New Building
 router.get('/newBuilding',ensureAuthenticated, (req,res) => {
-  firstName = req.user.firstName
   Client.find({}, function(err, data) {
-    res.render('additions/newBuilding',{result:data,firstName:firstName});
+    res.render('additions/newBuilding',{result:data});
   });
 });
 
@@ -273,7 +319,7 @@ router.post('/newBuilding', (req,res) => {
     const newBuilding = new Building({
       name,
       address,
-      client
+      "clientID" : client
     });
     newBuilding.save()
       .then(user => {

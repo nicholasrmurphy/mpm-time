@@ -2,11 +2,11 @@
 <h1 class="mt-4">Close Job</h1>
 <h4> Select the job to close</h4>
 <form action="/users/closeJob" method="POST">
-<% for (var i=0;i<jobs.length;i++) {%>
+<% for (var i=0;i<jobNames.length;i++) {%>
     <div class="form-check">
-        <input class="form-check-input" type="radio" name="closeJob" id="closeJob<%=i%>" value="<%=jobs[i]%>" checked>
+        <input class="form-check-input" type="radio" name="closeJob" id="closeJob<%=i%>" value="<%=jobIDs[i]%>" checked>
             <label class="form-check-label" for="closeJob<%=i%>">
-                <%=jobs[i]%>
+                <%=jobNames[i]%>
             </label>
         </div>
     <%}%>

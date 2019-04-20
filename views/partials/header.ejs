@@ -1,5 +1,5 @@
 <div id="navigation-bar">
-  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
     <a class="navbar-brand" href="#">MPM</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="true" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -7,11 +7,26 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link active" id="dashboardNav" href="../dashboard">Dashboard<span class="sr-only">(current)</span></a>
-          <a class="nav-item nav-link active" id="dashboardNav" href="/users/newJob">New Job<span class="sr-only">(current)</span></a>
-          <a class="nav-item nav-link active" id="dashboardNav" href="/users/closeJob">Close Job<span class="sr-only">(current)</span></a>
-            <% if (package.privilege != 'user' ) { %>
-              <a class="nav-item nav-link" href="/users/newBuilding">Add Building</a>
-              <a class="nav-item nav-link" href="/users/newClient">Add Client</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Jobs
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="nav-item nav-link active" id="dashboardNav" href="/users/newJob">New Job<span class="sr-only">(current)</span></a>
+              <a class="nav-item nav-link active" id="dashboardNav" href="/users/closeJob">Close Job<span class="sr-only">(current)</span></a>
+              <a class="nav-item nav-link active" id="dashboardNav" href="/users/viewHours">View Hours<span class="sr-only">(current)</span></a>
+            </div>
+          </li>
+            <% if (package.role != 'journeyman' ) { %>
+              <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Customers
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="nav-item nav-link" href="/users/newBuilding">Add Building</a>
+                <a class="nav-item nav-link" href="/users/newClient">Add Client</a>
+              </div>
+            </li>
             <% } %>
         </div>
       </div>

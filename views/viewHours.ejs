@@ -1,0 +1,31 @@
+<% include ./partials/header %>
+<h1 class="mt-4">Hours per Job</h1>
+<ul class="list-group">
+  <table style="width:100%" class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th>Job Name</th>
+        <th>Regular Hours</th>
+        <th>Overtime Hours</th>
+        <th>Total Hours</th>
+        <th>Building</th>
+        <th>Billable To</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <%billables.forEach(function(job) { %>
+        <%var complete; if (job.complete == true) { complete = "Closed";}else{ complete = "Open";} %>
+        <tr>
+          <td style="font-weight:bold"><%=job.name%></td>
+          <td><%=job.regHours%></td>
+          <td><%=job.otHours%></td>
+          <td style="font-weight:bold"><%=job.totalHours%></td>
+          <td><%=job.buildingName%></td>
+          <td><%=job.clientName%></td>
+          <td><%=complete%></td>
+        </tr>
+      <%})%>
+  </table>
+  <br>
+</ul>

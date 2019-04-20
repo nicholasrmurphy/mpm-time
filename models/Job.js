@@ -1,17 +1,21 @@
 const mongoose = require('mongoose');
 
 const JobSchema = new mongoose.Schema({
-    jobName: {
-        type: String
-    },
-    creator: {
-        type: String //save the ObjectId of the creator as string
-    },
-    entries: {
-        type: Array //save the relevant entries as an Array of ObjectId's as a string
+    name: {
+        type: String,
+        required: true
     },
     complete: {
-        type: Boolean
+        type: Boolean,
+        default: false
+    },
+    buildingID: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Building', //save the ObjectId of the associated Building
+        required: true
+    },
+    employeeID: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'User', //save the ObjectId of the creator as string
+        required: true
     }
 });
 

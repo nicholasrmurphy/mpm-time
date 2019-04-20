@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const EntrySchema = new mongoose.Schema({
-  //hours, room, buliding, note
   datePerformed : {
     type: Date,
     required: true
@@ -14,34 +13,18 @@ const EntrySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  room: {
-    type: String,
-    required: true
-  },
-  building: {
-    type: String,
-    required: true
-  },
   note: {
     type: String,
     required: false
   },
-  complete: {
-    type: Boolean,
+  jobID: { //ObjectID of associated job
+    type: mongoose.Schema.Types.ObjectId, ref: 'Job',
     required: true
   },
-  creator: {
-    type: String,//string that points to the ObjectId of the employeeId of creator
+  employeeID: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'User', //ObjectID of employee who create entry
     required: true
   },
-  employeeName:{
-    type: String,
-    required: true
-  },
-  jobName: {
-    type: String,
-    required: true
-  }
 });
 
 const Entry = mongoose.model('Entry', EntrySchema);

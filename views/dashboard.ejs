@@ -8,9 +8,10 @@
         Filter By
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="/users/filterPage?param=room">Room</a>
-        <a class="dropdown-item" href="/users/filterPage?param=job">Job</a>
-        <%if (package.privilege != 'user') { %>
+        <a class="dropdown-item" href="/users/filterPage?param=job">Select Job</a>
+        <a class="dropdown-item" href="/users/filterPage?param=openJob">Open Jobs</a>
+        <a class="dropdown-item" href="/users/filterPage?param=closedJob">Closed Jobs</a>
+        <%if (package.role != 'journeyman') { %>
           <a class="dropdown-item" href="/users/filterPage?param=creator">Employee</a>
         <%}%>
       </div>
@@ -18,4 +19,6 @@
   <!-- ^^ -->
 </nav>
 <% include ./partials/table %>
-
+<% if (empty) { %>
+  <h3> No Results </h3>
+<%}%>

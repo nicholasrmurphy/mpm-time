@@ -1,9 +1,5 @@
 <form action="/users/newEntry" method="POST">
   <div class="form-group">
-    <input type="hidden" name="creator" id="creator" value=<%=package.id%>>
-    <input type="hidden" name="employeeName" id="employeeName" value='<%=package.employeeName%>'>
-  </div>
-  <div class="form-group">
     <label>Date Performed</label>
     <input type="date" class="form-control" name="datePerformed" id="datePerformed">
   </div>
@@ -50,25 +46,6 @@
     </select>
   </div>
   <div class="form-group">
-    <label>Room</label>
-    <input
-    class="form-control"
-    id="room"
-    name = "room"
-    placeholder="101A">
-  </div>
-  <div class="form-group">
-    <label>Building</label>
-    <select
-    class="form-control"
-    id="building"
-    name="building">
-    <%buildings.forEach(function(item) { %>
-      <option><%=item.name%></option>
-    <%})%>
-    </select>
-  </div>
-  <div class="form-group">
     <label>Work Performed</label>
     <input
     class="form-control"
@@ -80,11 +57,11 @@
     <label>Associated Job</label>
     <select
     class="form-control"
-    id="jobName"
-    name="jobName">
-      <%jobs.forEach(function(item) { %>
-        <option><%=item.jobName%></option>
-      <%})%>
+    id="job"
+    name="job">
+      <%jobData.forEach(function(item) { %>
+        <option value="<%=item._id%>"><%=item.name%></option>
+      <%});%>
     </select>
   </div>
   <div class="modal-footer">

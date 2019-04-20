@@ -3,15 +3,14 @@
     <thead class="thead-dark">
       <tr>
         <th>Employee</th>
-        <th>Date</th>
         <th>Building</th>
-        <th>Room</th>
+        <th>Job</th>
         <th>Regular Hours</th>
         <th>Overtime Hours</th>
         <th>Total Hours</th>
         <th>Work Performed</th>
-        <th>Job</th>
-        <th>Complete</th>
+        <th>Status</th>
+        <th>Date</th>
         <th>
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
             <i class="fas fa-calendar-plus"></i>
@@ -20,24 +19,23 @@
       </tr>
     </thead>
 
-    <%entries.forEach(function(item) { %>
-        <% totalHours = (item.regHours + item.otHours) %>
-        <% var complete; if (item.complete == true) { complete = "Yes";}else{ complete = "No";} %>
+    <%records.forEach(function(item) { %>
+        <% totalHours = (item.regHours + (item.otHours * 1.5)) %>
+        <% var complete; if (item.complete == true) { complete = "Closed";}else{ complete = "Open";} %>
         <% var date = item.datePerformed;%>
         <% var month = (date.getMonth() + 1); %>
         <% var day = date.getDate(); %>
         <% var year = date.getFullYear(); %>
         <tr>
           <td><%=item.employeeName%></td>
-          <td><%=month%>/<%=day%>/<%=year%></td>
-          <td><%=item.building%></td>
-          <td><%=item.room%></td>
+          <td><%=item.buildingName%></td>
+          <td><%=item.jobName%>
           <td><%=item.regHours%></td>
           <td><%=item.otHours%></td>
-          <td><%=totalHours%></td>
+          <td><%=item.totalHours%></td>
           <td><%=item.note%></td>
-          <td><%=item.jobName%>
           <td><%=complete%></td>
+          <td><%=month%>/<%=day%>/<%=year%></td>
           <td></td>
         </tr>
       <%})%>

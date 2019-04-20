@@ -9,8 +9,8 @@ const BuildingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  client: {
-    type: String,
+  clientID: { //ObjectID of associated client
+    type: mongoose.Schema.Types.ObjectId, ref: 'Client',
     required: true
   }
 });
