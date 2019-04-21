@@ -255,17 +255,19 @@ router.post('/newEntry', (req,res) => {
 
   let errors = [];
 
-  if (datePerformed == "") {
-    errors.push({msg: 'Please fill in a date'});
+  datePerformed = new Date(datePerformed);
+
+  if (datePerformed == undefined) {
+    errors.push({msg: 'Please enter a valid a date format'});
   }
   if (job == undefined) {
     errors.push({msg: "Please select a job"});
-  }
+  }/*
   if (isValidDate(datePerformed)) {
     //valid date
   } else {
     errors.push({msg: 'Please enter the date in this format: MM/DD/YYYY'});
-  }
+  }*/
   if(errors.length > 0) {
     for (var i=0;i<errors.length;i++){
       req.flash('success_msg', errors[i].msg);
