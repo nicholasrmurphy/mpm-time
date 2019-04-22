@@ -122,29 +122,41 @@ router.post('/newJob', ensureAuthenticated, (req,res) => {
   const {jobName, building} = req.body;
   console.log("Making job with name " + jobName)
   var errors = [];
-  if (jobName == "") {
-    errors.push({msg: 'Please fill in all fields'});
-  }
-  if(errors.length > 0) {
-    res.render('additions/newJob', {
-      errors
+  var jobNameQuery = Job.find({}).select('name');
+  jobNameQuery.exec(function(err,jobs){
+    jobs.forEach(function(job) {
+      if (job.name == jobName) {
+        errors.push({msg: 'A job with this name already exists'});
+        console.log('pushing error name exists');
+      }
     });
-  } else {
-    creator = req.user._id;
-
-    const newJob = new Job({
-      'name': jobName,
-      'buildingID' : building,
-      'employeeID' : creator
-    });
-
-    newJob.save()
-      .then(user => {
-        req.flash('success_msg', 'You successfully added a Job!');
-        res.redirect('/dashboard');
-      })
-      .catch(err => console.log(err));
-  }
+    if (jobName == "") {
+      errors.push({msg: 'Please fill in all fields'});
+      console.log('pushing error blank field');
+    }
+    if(errors.length > 0) {
+      var buildingQuery = Building.find({}).select('name _id');
+      buildingQuery.exec(function(err, buildings) {
+        res.render('additions/newJob', {buildings,errors});
+      });
+    } else {
+      creator = req.user._id;
+  
+      const newJob = new Job({
+        'name': jobName,
+        'buildingID' : building,
+        'employeeID' : creator
+      });
+  
+      newJob.save()
+        .then(user => {
+          req.flash('success_msg', 'You successfully added a Job!');
+          res.redirect('/dashboard');
+        })
+        .catch(err => console.log(err));
+    }
+  });
+  
 });
 
 //Filter Page
@@ -304,11 +316,15 @@ router.post('/newBuilding', (req,res) => {
     errors.push({msg: 'Please fill in an address'});
   }
   if(errors.length > 0) {
-    res.render('newBuilding', {
-      errors,
-      name,
-      address
+    Client.find({}, function(err, data) {
+      res.render('additions/newBuilding', {
+        result:data,
+        errors,
+        name,
+        address
+      });
     });
+    
   } else {
     const newBuilding = new Building({
       name,
