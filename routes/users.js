@@ -386,12 +386,10 @@ router.post('/register', (req, res) => {
             });
           } else {
             const role = key.role;
-            const privilege = key.privilege;
             const newUser = new User({
               firstName,
               lastName,
               role,
-              privilege,
               email,
               password
             });
