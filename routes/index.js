@@ -30,7 +30,7 @@ function initPackage(req) {
 
 function renderDashboard(query,req,res) {
   console.log("Calling renderDashboard");
-  var jobQuery = Job.find({}).select('name _id');
+  var jobQuery = Job.find({complete: false}).select('name _id');
   query.exec(function(err, entries) {
     records = [];
     if (entries.length > 0) {
