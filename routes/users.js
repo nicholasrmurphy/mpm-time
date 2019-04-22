@@ -245,32 +245,25 @@ router.get('/newEntry',ensureAuthenticated, (req,res) => {
 
 router.post('/newEntry', (req,res) => {
 
-  function isValidDate(s) {
-    var bits = s.split('/');
-    var d = new Date(bits[2], bits[1] - 1, bits[0]);
-    return d && (d.getMonth() + 1) == bits[1];
-  }
-
   var {regHours,otHours,note,employeeName,datePerformed,job} = req.body;
 
   let errors = [];
-
-  datePerformed = new Date(datePerformed);
+  var date = Date.parse(datePerformed);
+  if (isNaN(date) == false) {
+    datePerformed = new Date(date);
+  } else {
+    datePerformed = undefined;
+  }
 
   if (datePerformed == undefined) {
     errors.push({msg: 'Please enter a valid a date format'});
   }
   if (job == undefined) {
     errors.push({msg: "Please select a job"});
-  }/*
-  if (isValidDate(datePerformed)) {
-    //valid date
-  } else {
-    errors.push({msg: 'Please enter the date in this format: MM/DD/YYYY'});
-  }*/
+  }
   if(errors.length > 0) {
     for (var i=0;i<errors.length;i++){
-      req.flash('success_msg', errors[i].msg);
+      req.flash('error_msg', errors[i].msg);
     }
     res.redirect('/dashboard');
   } else {
@@ -284,7 +277,6 @@ router.post('/newEntry', (req,res) => {
       'otHours' : otHours,
       'note' : note
     });
-    console.log(newEntry.note);
     newEntry.save()
       .then(user => {
         req.flash('success_msg', 'You successfully added an entry!');
