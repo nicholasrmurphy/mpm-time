@@ -90,9 +90,7 @@ router.get('/closeJob', ensureAuthenticated, (req,res) => {
   jobIDs = []
   Job.find({}, function(err,allJobs) { 
     allJobs.forEach(function(job){
-      if (job.complete) {
-        //don't add it
-      } else {
+      if (!job.complete) {
         jobNames.push(job.name);
         jobIDs.push(job._id);
       }
