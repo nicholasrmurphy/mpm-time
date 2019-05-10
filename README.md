@@ -5,7 +5,5 @@ This software allows users to create an account and begin recording work entries
 These entries can then be viewed and organized with the help of the application.  
 The application was constructed using NodeJS, ExpressJS, MongoDB, Bootstrap, and various middlewares. 
 
-The URL where this project is currently running is https://mpm-timesheet.azurewebsites.net
-
 The software requires a registration code to begin using it, so outside use is prohibited. 
 If a demonstration is requested I encourage reaching out to arrange one. 
